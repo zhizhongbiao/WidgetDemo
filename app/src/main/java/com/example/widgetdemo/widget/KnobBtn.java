@@ -52,6 +52,7 @@ public class KnobBtn extends View {
     private PaintFlagsDrawFilter paintFlagsDrawFilter;
     private Paint tagPaint;
     private boolean isNeedShowText;
+    private Paint cTextPaint;
 
 
     public KnobBtn(Context context) {
@@ -89,6 +90,14 @@ public class KnobBtn extends View {
         textPaint.setTextSize(34);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setStyle(Paint.Style.FILL);
+
+
+        cTextPaint = new Paint();
+        cTextPaint.setColor(Color.CYAN);
+        cTextPaint.setAntiAlias(true);
+        cTextPaint.setTextSize(64);
+        cTextPaint.setTextAlign(Paint.Align.CENTER);
+        cTextPaint.setStyle(Paint.Style.FILL);
 
         btnPaint = new Paint();
         btnPaint.setAntiAlias(true);
@@ -147,6 +156,8 @@ public class KnobBtn extends View {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                isNeedShowText = false;
+                invalidate();
                 break;
         }
         return true;
@@ -197,7 +208,24 @@ public class KnobBtn extends View {
         drawBtn(canvas);
         drawArc(canvas);
         drawTag(canvas);
-        drawText(canvas);
+
+        if (isNeedShowText) {
+            drawText(canvas);
+        }
+        drawCenterText(canvas);
+    }
+
+    private void drawCenterText(Canvas canvas) {
+        canvas.save();
+        canvas.translate(width / 2, height / 2);
+        float textWidth = textPaint.measureText(targetAngle + "");
+        float ascent = textPaint.ascent();
+        float descent = textPaint.descent();
+        float textHeight = descent - ascent;
+        LogUtils.e("ascent = " + ascent + "     descent =" + descent + "     textHeight=" + textHeight);
+
+        canvas.drawText(Math.floor(targetAngle) + "°", 0, 0+textHeight/2, cTextPaint);
+        canvas.restore();
     }
 
     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.b400);
@@ -205,11 +233,11 @@ public class KnobBtn extends View {
     private void drawBtn(Canvas canvas) {
         int bHeight = bitmap.getHeight();
         int bWidth = bitmap.getWidth();
-        float ratio = cRadius * 1.0f /bWidth*2f*0.9f ;
-        LogUtils.e("ratio  = "+ratio+"    bHeight="+bHeight+"    cRadius="+cRadius);
+        float ratio = cRadius * 1.0f / bWidth * 2f * 0.9f;
+        LogUtils.e("ratio  = " + ratio + "    bHeight=" + bHeight + "    cRadius=" + cRadius);
         Matrix matrix = new Matrix();
         matrix.postTranslate((width - bWidth) / 2, (height - bHeight) / 2);
-        matrix.postScale(ratio,ratio, width / 2, height / 2);
+        matrix.postScale(ratio, ratio, width / 2, height / 2);
         canvas.setDrawFilter(paintFlagsDrawFilter);
         canvas.drawBitmap(bitmap, matrix, btnPaint);
 
