@@ -72,6 +72,21 @@ public class KnobBtn extends View {
         LogUtils.d("maximumFlingVelocity =" + this.maximumFlingVelocity);
     }
 
+    private VelocityTracker getVelocityTracker() {
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain();
+        }
+        return velocityTracker;
+    }
+
+    private void releaseVelocityTracker() {
+        if (velocityTracker != null) {
+            velocityTracker.clear();
+            velocityTracker.recycle();
+            velocityTracker=null;
+        }
+    }
+
     private void initPaint() {
         paint = new Paint();
         paint.setColor(Color.CYAN);
@@ -121,6 +136,7 @@ public class KnobBtn extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        getVelocityTracker().addMovement(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 isNeedShowText = true;
@@ -130,16 +146,21 @@ public class KnobBtn extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
 
+                getVelocityTracker().computeCurrentVelocity(1000, maximumFlingVelocity);
+
+                float xVelocity = getVelocityTracker().getXVelocity();
+
                 float currentX = event.getX();
                 float currentY = event.getY();
                 float currentAngle = calcAngle2(currentX, currentY);
 
 
                 deltaAngle = currentAngle - lastAngle;
-                LogUtils.w("  deltaAngle= " + deltaAngle);
-                if (currentAngle > 340 || currentAngle < 40) {
+                LogUtils.w("  deltaAngle= " + deltaAngle + "    xVelocity=" + xVelocity);
+                if (currentAngle > 330 || currentAngle < 30) {
                     deltaAngle = 0;
                 }
+
                 targetAngle = targetAngle + deltaAngle;
 
 
@@ -155,9 +176,11 @@ public class KnobBtn extends View {
 
                 break;
             case MotionEvent.ACTION_UP:
+                releaseVelocityTracker();
             case MotionEvent.ACTION_CANCEL:
                 isNeedShowText = false;
                 invalidate();
+
                 break;
         }
         return true;
@@ -222,9 +245,9 @@ public class KnobBtn extends View {
         float ascent = textPaint.ascent();
         float descent = textPaint.descent();
         float textHeight = descent - ascent;
-        LogUtils.e("ascent = " + ascent + "     descent =" + descent + "     textHeight=" + textHeight);
+//        LogUtils.e("ascent = " + ascent + "     descent =" + descent + "     textHeight=" + textHeight);
 
-        canvas.drawText(Math.floor(targetAngle) + "°", 0, 0+textHeight/2, cTextPaint);
+        canvas.drawText(Math.floor(targetAngle) + "°", 0, 0 + textHeight / 2, cTextPaint);
         canvas.restore();
     }
 
@@ -234,7 +257,7 @@ public class KnobBtn extends View {
         int bHeight = bitmap.getHeight();
         int bWidth = bitmap.getWidth();
         float ratio = cRadius * 1.0f / bWidth * 2f * 0.9f;
-        LogUtils.e("ratio  = " + ratio + "    bHeight=" + bHeight + "    cRadius=" + cRadius);
+//        LogUtils.e("ratio  = " + ratio + "    bHeight=" + bHeight + "    cRadius=" + cRadius);
         Matrix matrix = new Matrix();
         matrix.postTranslate((width - bWidth) / 2, (height - bHeight) / 2);
         matrix.postScale(ratio, ratio, width / 2, height / 2);
