@@ -136,7 +136,7 @@ public class KnobBtn extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        getVelocityTracker().addMovement(event);
+//        getVelocityTracker().addMovement(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 isNeedShowText = true;
@@ -148,7 +148,7 @@ public class KnobBtn extends View {
 
                 getVelocityTracker().computeCurrentVelocity(1000, maximumFlingVelocity);
 
-                float xVelocity = getVelocityTracker().getXVelocity();
+//                float xVelocity = getVelocityTracker().getXVelocity();
 
                 float currentX = event.getX();
                 float currentY = event.getY();
@@ -156,7 +156,10 @@ public class KnobBtn extends View {
 
 
                 deltaAngle = currentAngle - lastAngle;
-                LogUtils.w("  deltaAngle= " + deltaAngle + "    xVelocity=" + xVelocity);
+
+                LogUtils.w("  deltaAngle= " + deltaAngle + "    xVelocity=" + null);
+
+//                block the touch effect of the borderline area
                 if (currentAngle > 330 || currentAngle < 30) {
                     deltaAngle = 0;
                 }
@@ -176,8 +179,8 @@ public class KnobBtn extends View {
 
                 break;
             case MotionEvent.ACTION_UP:
-                releaseVelocityTracker();
             case MotionEvent.ACTION_CANCEL:
+                releaseVelocityTracker();
                 isNeedShowText = false;
                 invalidate();
 
