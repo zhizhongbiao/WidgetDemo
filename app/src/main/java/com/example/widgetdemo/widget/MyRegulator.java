@@ -118,10 +118,6 @@ public class MyRegulator extends View {
         paint.setStrokeWidth(strokeWidthV);
         canvas.drawLine(sX, eY - factor * scale, sX, eY, paint);
         paint.setStrokeWidth(strokeWidthH);
-//        int index = Arrays.binarySearch(pts, sY + factor * scale);
-//        if (index < 4) {
-//         return;
-//        }
         int length = pts.length;
         float[] copys = Arrays.copyOfRange(pts, length-(factor+1)*4, length);
         canvas.drawLines(copys, paint);
