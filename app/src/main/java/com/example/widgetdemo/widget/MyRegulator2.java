@@ -86,6 +86,8 @@ public class MyRegulator2 extends View {
         sY = height * 1.5f / 18;
         eY = height * 16.5f / 18;
 
+        currentY=eY;
+
     }
 
     @Override
