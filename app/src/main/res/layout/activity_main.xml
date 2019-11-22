@@ -10,13 +10,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <com.example.widgetdemo.widget.KnobBtn
+            android:id="@+id/kb"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:id="@+id/kb"
             android:background="#FF0000"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -26,24 +25,26 @@
 
         <com.example.widgetdemo.widget.MyRegulator
             android:layout_width="200dp"
-            android:background="#090909"
-            android:layout_height="450dp" />
-
+            android:layout_height="450dp"
+            android:background="#090909" />
 
 
         <com.example.widgetdemo.widget.MyCl
-            android:layout_width="600dp"
-            android:background="#090999"
-            android:layout_height="300dp"/>
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="#090999" />
+
+
+        <com.example.widgetdemo.widget.MyClock
+            android:layout_width="300dp"
+            android:layout_height="300dp" />
+
+        <com.example.widgetdemo.widget.MyRegulator2
+            android:layout_width="200dp"
+            android:layout_height="450dp"
+            android:background="#090909" />
 
     </LinearLayout>
-
-
-
-
-
-
-
 
 
 </FrameLayout>
