@@ -4,10 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -25,18 +24,18 @@ import com.example.widgetdemo.LogUtils;
  * @UpdateRemark:
  * @Version: 1.0
  */
-public class MyCl extends View {
+public class MyCl extends ConstraintLayout {
 
     private int min;
     private float radius;
-    private Paint paint;
+    private Paint grayPaint;
     private int width;
     private int height;
     private float deltaAngle = 30;
     private float radius2;
     private int rounds;
-    private double x;
-    private double y;
+    private Paint lightPaint;
+    private String content;
 
     public MyCl(Context context) {
         this(context, null);
@@ -49,13 +48,18 @@ public class MyCl extends View {
     public MyCl(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initPaint();
-//        setWillNotDraw(false);
+        setWillNotDraw(false);
     }
 
     private void initPaint() {
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        grayPaint = new Paint();
+        grayPaint.setAntiAlias(true);
+        grayPaint.setStyle(Paint.Style.STROKE);
+        grayPaint.setColor(Color.parseColor("#999999"));
+
+        lightPaint = new Paint();
+        lightPaint.setAntiAlias(true);
+        lightPaint.setColor(Color.WHITE);
     }
 
 
@@ -66,15 +70,15 @@ public class MyCl extends View {
         width = getWidth();
         height = getHeight();
 
-        LogUtils.e("   width="+width+"   height= "+height);
+        LogUtils.e("   width=" + width + "   height= " + height);
 
-        min = Math.min(width, height)/2;
+        min = Math.min(width, height) / 2;
 
-        radius = 1f / 16f * min;
-        radius2 = 1.5f / 16f * min;
-        paint.setStrokeWidth(5f / 16f * min);
+        radius = 15f / 20f * min;
+        radius2 = 1f / 19f * radius;
+        grayPaint.setStrokeWidth(1f / 25f * min);
+        lightPaint.setStrokeWidth(1f / 25f * min);
 
-//        setWillNotDraw(false);
     }
 
     @Override
@@ -82,8 +86,8 @@ public class MyCl extends View {
         super.onDraw(canvas);
 
         drawGrayCircle(canvas);
-        drawWhiteArc(canvas);
-        drawStrokeCircle(canvas);
+        drawLightArc(canvas);
+        drawLightCircle(canvas);
         drawString(canvas);
 
         LogUtils.e(" onDraw  ");
@@ -91,63 +95,95 @@ public class MyCl extends View {
 
     private void drawString(Canvas canvas) {
 
+        content = content+" M";
+
+        Rect rect = new Rect();
+        lightPaint.getTextBounds(content,0, content.length(),rect);
+        int textW = rect.width();
+        int textH = rect.height();
+
+        lightPaint.setStrokeWidth(1f / 1000f * min);
+        lightPaint.setTextSize(radius * 3/ 20f);
+
+        canvas.save();
+        int[] ints = calculateCoordinator(radius+(min-radius)/2f);
+        canvas.drawText(content, ints[0], ints[1], lightPaint);
+        canvas.restore();
     }
 
 
+    private void drawLightCircle(Canvas canvas) {
+        canvas.save();
+        int[] ints = calculateCoordinator(radius);
+        lightPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        canvas.drawCircle(ints[0], ints[1], radius2, lightPaint);
+        canvas.restore();
+    }
 
-    private void drawStrokeCircle(Canvas canvas) {
+    private int[] calculateCoordinator(float referRadius) {
+
         rounds = (int) (deltaAngle / 360);
         deltaAngle = deltaAngle % 360;
 
-        canvas.save();
+        int[] ints = new int[2];
+
+        double x = width / 2f;
+        double y = height * 5 / 20f;
+
         float halfW = width / 2f;
         float halfH = height / 2f;
         double deltaPI = deltaAngle * Math.PI / 180f;
 
         if (deltaAngle <= 90) {
-            x = halfW + Math.sin(deltaPI) * radius;
-            y = halfH - Math.cos(deltaPI) * radius;
+            x = halfW + Math.sin(deltaPI) * referRadius;
+            y = halfH - Math.cos(deltaPI) * referRadius;
         }
 
         if (deltaAngle > 90 && deltaAngle <= 180) {
-            x = halfW + Math.sin(Math.PI - deltaPI) * radius;
-            y = halfH + Math.cos(Math.PI - deltaPI) * radius;
+            x = halfW + Math.sin(Math.PI - deltaPI) * referRadius;
+            y = halfH + Math.cos(Math.PI - deltaPI) * referRadius;
         }
 
         if (deltaAngle <= 270 && deltaAngle > 180) {
-            x = halfW - Math.sin(deltaPI - Math.PI) * radius;
-            y = halfH + Math.cos(deltaPI - Math.PI) * radius;
+            x = halfW - Math.sin(deltaPI - Math.PI) * referRadius;
+            y = halfH + Math.cos(deltaPI - Math.PI) * referRadius;
         }
 
 
         if (deltaAngle >= 270) {
-            x = halfW - Math.sin(2 * Math.PI - deltaPI) * radius;
-            y = halfH - Math.cos(2 * Math.PI - deltaPI) * radius;
+            x = halfW - Math.sin(2 * Math.PI - deltaPI) * referRadius;
+            y = halfH - Math.cos(2 * Math.PI - deltaPI) * referRadius;
         }
 
+        ints[0] = (int) x;
+        ints[1] = (int) y;
 
-        paint.setColor(Color.parseColor("#E6E6E6"));
-        canvas.drawCircle((int) x, (int) y, radius2, paint);
-        canvas.restore();
+        return ints;
     }
 
-    private void drawWhiteArc(Canvas canvas) {
+    private void drawLightArc(Canvas canvas) {
         canvas.save();
         canvas.translate(width / 2f, height / 2f);
-        paint.setColor(Color.parseColor("#E6E6E6"));
+        lightPaint.setStyle(Paint.Style.STROKE);
         RectF rectF = new RectF(-radius, -radius, radius, radius);
-        canvas.drawArc(rectF, -90, deltaAngle, false, paint);
+        canvas.drawArc(rectF, -90, deltaAngle, false, lightPaint);
         canvas.restore();
     }
 
     private void drawGrayCircle(Canvas canvas) {
         canvas.save();
         canvas.translate(width / 2f, height / 2f);
-        paint.setColor(Color.parseColor("#999999"));
-
-        LogUtils.e(" drawGrayCircle  radius="+radius+"   paint= "+paint);
-//        paint.setColor(Color.RED);
-        canvas.drawCircle(0, 0, radius, paint);
+        canvas.drawCircle(0, 0, radius, grayPaint);
         canvas.restore();
+        LogUtils.e(" drawGrayCircle  radius=" + radius + "   grayPaint= " + grayPaint);
     }
+
+
+    public void setContent(int minute) {
+        this.content = minute+"";
+        deltaAngle=minute/60f*360;
+        invalidate();
+    }
+
+
 }

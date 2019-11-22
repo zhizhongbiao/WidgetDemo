@@ -217,6 +217,12 @@ public class MyRegulator extends View {
 
         int f = 0;
 
+        if (currentY<sY)
+        {
+            f=5;
+        }
+
+
         if (isInTheRange(currentY, (int) (eY - scale * 0.5f), (int) eY)) {
             f = 0;
         }
